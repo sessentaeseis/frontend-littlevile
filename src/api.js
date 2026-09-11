@@ -45,6 +45,21 @@ api.interceptors.request.use((config) => {
   return config
 })
 
+// Se o token expirar ou ficar inválido, limpa a sessão e manda pro login
+// automaticamente, em vez de deixar a tela travada num erro genérico.
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error?.response?.status === 401) {
+      limparSessao()
+      if (typeof window !== 'undefined' && window.location.pathname !== '/login') {
+        window.location.href = '/login'
+      }
+    }
+    return Promise.reject(error)
+  }
+)
+
 export function extrairErro(err) {
   const data = err?.response?.data
   if (data && typeof data === 'object' && data.erro) {

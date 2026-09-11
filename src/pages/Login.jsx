@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import api, { extrairErro, setSession } from '../api.js'
+import { Link, Navigate, useNavigate } from 'react-router-dom'
+import api, { extrairErro, setSession, isAutenticado } from '../api.js'
 import '../App.css'
 
 function Login() {
@@ -9,6 +9,10 @@ function Login() {
   const [senha, setSenha] = useState('')
   const [erro, setErro] = useState('')
   const [carregando, setCarregando] = useState(false)
+
+  if (isAutenticado()) {
+    return <Navigate to="/dashboard" replace />
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault()

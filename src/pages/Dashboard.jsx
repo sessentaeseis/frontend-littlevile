@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import Layout from './Layout.jsx'
 import api, { extrairErro } from '../api.js'
+import AvistamentosMap from '../components/AvistamentosMap.jsx'
 import {
   BarChart,
   Bar,
@@ -59,6 +61,27 @@ function Dashboard() {
 
   const recentes = avistamentos.slice(0, 5)
 
+  const localizacaoMap = {}
+  avistamentos.forEach((a) => {
+    const local = a.localizacao || 'Indefinido'
+    localizacaoMap[local] = (localizacaoMap[local] || 0) + 1
+  })
+  const localMaisCitado = Object.entries(localizacaoMap).sort(
+    (a, b) => b[1] - a[1]
+  )[0]?.[0]
+
+  const confiancaMedia =
+    totalAvistamentos === 0
+      ? null
+      : Math.round(
+          avistamentos.reduce((soma, a) => soma + (a.confianca || 0), 0) /
+            totalAvistamentos
+        )
+
+  const comLocalizacaoReal = avistamentos.filter(
+    (a) => typeof a.latitude === 'number' && typeof a.longitude === 'number'
+  )
+
   return (
     <Layout>
       <h1 className="page-title anim-up">Dashboard</h1>
@@ -85,11 +108,15 @@ function Dashboard() {
             </div>
             <div className="stat-card anim-up" style={{ animationDelay: '0.19s' }}>
               <div className="stat-label">Local mais citado</div>
-              <div className="stat-value">-</div>
+              <div className="stat-value" style={{ fontSize: localMaisCitado ? '1.4rem' : undefined }}>
+                {localMaisCitado || '-'}
+              </div>
             </div>
             <div className="stat-card anim-up" style={{ animationDelay: '0.26s' }}>
               <div className="stat-label">Confiança média</div>
-              <div className="stat-value">-</div>
+              <div className="stat-value">
+                {confiancaMedia === null ? '-' : `${confiancaMedia}%`}
+              </div>
             </div>
           </div>
 
@@ -150,6 +177,23 @@ function Dashboard() {
                 </ul>
               )}
             </div>
+          </div>
+
+          <div className="card anim-up" style={{ animationDelay: '0.3s', marginTop: 20 }}>
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginBottom: 12,
+              }}
+            >
+              <h3 style={{ margin: 0 }}>Localizações reais no mapa</h3>
+              <Link to="/mapa" className="btn-link">
+                Ver mapa completo
+              </Link>
+            </div>
+            <AvistamentosMap avistamentos={comLocalizacaoReal} altura={320} zoom={11} />
           </div>
         </>
       )}

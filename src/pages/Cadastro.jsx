@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import api, { extrairErro } from '../api.js'
+import { Link, Navigate, useNavigate } from 'react-router-dom'
+import api, { extrairErro, isAutenticado } from '../api.js'
 import '../App.css'
 
 function Cadastro() {
@@ -11,6 +11,10 @@ function Cadastro() {
   const [confirmarSenha, setConfirmarSenha] = useState('')
   const [erro, setErro] = useState('')
   const [carregando, setCarregando] = useState(false)
+
+  if (isAutenticado()) {
+    return <Navigate to="/dashboard" replace />
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
